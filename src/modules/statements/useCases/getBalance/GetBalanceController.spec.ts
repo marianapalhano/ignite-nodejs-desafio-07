@@ -5,7 +5,7 @@ import { v4 as uuid } from "uuid";
 import { app } from "../../../../app";
 
 let connection: Connection;
-describe("Show User Profile", () => {
+describe("Get Balance", () => {
     beforeAll(async () => {
         connection = await createConnection();
         await connection.runMigrations();
@@ -16,9 +16,9 @@ describe("Show User Profile", () => {
         await connection.close();
     });
 
-    it("should be able to show a user profile", async () => {
+    it("should be able to get a user's balance", async () => {
 
-      await request(app).post("/api/v1/users")
+      const userResponse = await request(app).post("/api/v1/users")
         .send({
           name: "Mock User",
           email: "mockuser@mail.com",
@@ -33,11 +33,12 @@ describe("Show User Profile", () => {
       const { token } = responseToken.body;
 
       const response = await request(app)
-          .get("/api/v1/profile")
+          .get("/api/v1/statements/balance")
           .set({
               Authorization: `Bearer ${token}`,
           });
-
       expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty("balance");
+      expect(response.body.balance).toEqual(0);
     });
 });
